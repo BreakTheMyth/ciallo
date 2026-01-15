@@ -1,10 +1,5 @@
 #include "ciallo.h"
 
-/**
- * @deprecated 记录当前是否处于切换上下文状态
- */
-volatile int is_cialloing = 0;
-
 static context contexts[CONTEXTS_MAX] = {0};
 static uint64  contexts_count         =  0;
 static uint64  contexts_head          =  0;
@@ -16,74 +11,6 @@ static uint64   functions_head           =  0;
 static uint64   functions_tail           =  0;
 
 static uint64 stack_top_index = 0;
-
-/**
- * @deprecated 保存当前上下文
- */
-__attribute__((naked))
-void contexts_save(context *) {
-    asm volatile (
-        "movl   $1,        is_cialloing(%rip)\n\t"
-#if defined(_WIN64)
-        "movq   %rcx,      %rax              \n\t"
-#elif defined(__x86_64__)
-        "movq   %rdi,      %rax              \n\t"
-#else
-#error I refuse to compile
-#endif
-        "movq   %rbx,      0x00(%rax)        \n\t"
-        "movq   %rcx,      0x08(%rax)        \n\t"
-        "movq   %rdx,      0x10(%rax)        \n\t"
-        "movq   %rsi,      0x18(%rax)        \n\t"
-        "movq   %rdi,      0x20(%rax)        \n\t"
-        "movq   %rbp,      0x28(%rax)        \n\t"
-        "movq   %rsp,      0x30(%rax)        \n\t"
-        "movq   %r8,       0x38(%rax)        \n\t"
-        "movq   %r9,       0x40(%rax)        \n\t"
-        "movq   %r10,      0x48(%rax)        \n\t"
-        "movq   %r11,      0x50(%rax)        \n\t"
-        "movq   %r12,      0x58(%rax)        \n\t"
-        "movq   %r13,      0x60(%rax)        \n\t"
-        "movq   %r14,      0x68(%rax)        \n\t"
-        "movq   %r15,      0x70(%rax)        \n\t"
-        "pushfq                              \n\t"
-        "popq   0x78(%rax)                   \n\t"
-        "ret                                 \n\t");
-}
-
-/**
- * @deprecated 切换至目标上下文并跳转
- */
-__attribute__((naked, noreturn))
-void contexts_load(context *) {
-    asm volatile (
-#if defined(_WIN64)
-        "movq  %rcx,       %rax\n\t"
-#elif defined(__x86_64__)
-        "movq  %rdi,       %rax\n\t"
-#else
-#error I refuse to compile
-#endif
-        "movq  0x00(%rax), %rbx              \n\t"
-        "movq  0x08(%rax), %rcx              \n\t"
-        "movq  0x10(%rax), %rdx              \n\t"
-        "movq  0x18(%rax), %rsi              \n\t"
-        "movq  0x20(%rax), %rdi              \n\t"
-        "movq  0x28(%rax), %rbp              \n\t"
-        "movq  0x30(%rax), %rsp              \n\t"
-        "movq  0x38(%rax), %r8               \n\t"
-        "movq  0x40(%rax), %r9               \n\t"
-        "movq  0x48(%rax), %r10              \n\t"
-        "movq  0x50(%rax), %r11              \n\t"
-        "movq  0x58(%rax), %r12              \n\t"
-        "movq  0x60(%rax), %r13              \n\t"
-        "movq  0x68(%rax), %r14              \n\t"
-        "movq  0x70(%rax), %r15              \n\t"
-        "pushq 0x78(%rax)                    \n\t"
-        "popfq                               \n\t"
-        "movl  $0,         is_cialloing(%rip)\n\t"
-        "jmp   *0x80(%rax)                   \n\t");
-}
 
 int contexts_is_empty(void) {
     return contexts_count == 0;
