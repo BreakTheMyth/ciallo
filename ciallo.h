@@ -27,12 +27,6 @@ typedef struct function {
     void  *function_arg;
 } function;
 
-__attribute__((naked))
-void contexts_save(context *);
-
-__attribute__((naked, noreturn))
-void contexts_load(context *);
-
 int contexts_is_empty(void);
 int contexts_is_full(void);
 int contexts_append(const context *);
