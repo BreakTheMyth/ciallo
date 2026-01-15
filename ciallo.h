@@ -1,7 +1,5 @@
 #pragma once
 
-extern volatile int is_cialloing;
-
 typedef unsigned long long uint64;
 
 typedef struct context {
