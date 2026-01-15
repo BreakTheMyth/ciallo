@@ -1,4 +1,4 @@
-<img src="icon.jpg" alt="Ciallo" style="zoom: 25%;" />
+<img src="icon.jpg" width="25%" />
 
 - Ciallo～(∠・ω< )⌒☆ 是一个不依赖任何标准库，仅内联了少量汇编实现的轻量级玩具库，可以在单一线程中同时攻略多个香香软软的小函数
 
